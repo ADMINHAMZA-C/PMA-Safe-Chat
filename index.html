@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PMA Safe Chat</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #1a1a1a;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px;
+    }
+    #chat {
+      width: 100%;
+      max-width: 500px;
+      display: flex;
+      flex-direction: column;
+    }
+    #messages {
+      height: 400px;
+      overflow-y: scroll;
+      border: 2px solid #555;
+      padding: 10px;
+      margin-bottom: 10px;
+      background: #111;
+      border-radius: 8px;
+    }
+    #messages div {
+      padding: 4px 8px;
+      margin-bottom: 4px;
+      border-radius: 5px;
+      word-wrap: break-word;
+    }
+    #inputArea {
+      display: flex;
+    }
+    #msgInput {
+      flex: 1;
+      padding: 8px;
+      border-radius: 5px 0 0 5px;
+      border: none;
+      outline: none;
+    }
+    #sendBtn {
+      padding: 8px 12px;
+      background: #4caf50;
+      color: #fff;
+      border: none;
+      border-radius: 0 5px 5px 0;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div id="chat">
+    <h2>PMA Safe Chat</h2>
+    <div id="messages"></div>
+    <div id="inputArea">
+      <input type="text" id="msgInput" placeholder="Type message...">
+      <button id="sendBtn">Send</button>
+    </div>
+  </div>
+
+  <script>
+    // ask for username
+    let username = "";
+    while (!username) {
+      username = prompt("Enter your PMA name:");
+    }
+
+    // assign random color for username
+    const userColor = '#' + Math.floor(Math.random()*16777215).toString(16);
+
+    const messagesDiv = document.getElementById("messages");
+    const msgInput = document.getElementById("msgInput");
+    const sendBtn = document.getElementById("sendBtn");
+
+    // store messages in localStorage for this device
+    function loadMessages() {
+      const messages = JSON.parse(localStorage.getItem("pmaMessages") || "[]");
+      messagesDiv.innerHTML = "";
+      messages.forEach(msgObj => {
+        const div = document.createElement("div");
+        div.innerHTML = `<span style="color:${msgObj.color}">${msgObj.user}</span>: ${msgObj.text}`;
+        messagesDiv.appendChild(div);
+      });
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    function sendMessage() {
+      const text = msgInput.value.trim();
+      if (!text) return;
+      const messages = JSON.parse(localStorage.getItem("pmaMessages") || "[]");
+      messages.push({user: username, color: userColor, text});
+      localStorage.setItem("pmaMessages", JSON.stringify(messages));
+      msgInput.value = "";
+      loadMessages();
+    }
+
+    sendBtn.addEventListener("click", sendMessage);
+    msgInput.addEventListener("keypress", e => {
+      if (e.key === "Enter") sendMessage();
+    });
+
+    loadMessages();
+  </script>
+</body>
+</html>
